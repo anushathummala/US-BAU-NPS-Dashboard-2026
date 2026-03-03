@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>NPS Intelligence · JFM '26</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2f3f7;--surf:#fff;--panel:#f7f8fc;--bdr:#e6e8f0;--bdr2:#cdd0e0;
+  --ink:#0d1117;--ink2:#44485c;--ink3:#8b91a8;
+  --blue:#1b5ef7;--blue-bg:#eef3ff;--blue-bdr:rgba(27,94,247,.18);
+  --g:#0f7f3e;--gbg:#f0fdf5;--gbdr:#a7f3c4;--gchip:#d1fae5;
+  --y:#92600a;--ybg:#fffbeb;--ybdr:#fde68a;--ychip:#fef3c7;
+  --r:#c0180c;--rbg:#fff1f0;--rbdr:#fecaca;--rchip:#fee2e2;
+  --purple:#6d28d9;--purple-bg:#f5f3ff;
+  --teal:#0e7490;--teal-bg:#f0fdfa;--teal-bdr:#99f6e4;
+  --orange:#c2410c;--orange-bg:#fff7ed;--orange-bdr:#fed7aa;
+  --rad:11px;--rsm:7px;
+  --sh:0 1px 3px rgba(0,0,0,.05),0 6px 18px rgba(0,0,0,.05);
+  --sh2:0 1px 2px rgba(0,0,0,.04);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:99px}
+
+/* ── TOPBAR ── */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:300;height:50px;background:rgba(255,255,255,.94);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;padding:0 14px}
+@media(min-width:640px){.topbar{padding:0 20px}}
+.tb-brand{display:flex;align-items:center;gap:8px}
+.tb-logo{width:28px;height:28px;border-radius:7px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0}
+.tb-name{font-weight:600;font-size:13.5px;letter-spacing:-.2px;display:none}
+@media(min-width:460px){.tb-name{display:block}}
+.tb-badge{font-family:'Geist Mono',monospace;font-size:9.5px;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-bdr);padding:2px 7px;border-radius:99px}
+.tb-right{display:flex;align-items:center;gap:7px}
+.legend{display:none;align-items:center;gap:10px}
+@media(min-width:700px){.legend{display:flex}}
+.leg{font-family:'Geist Mono',monospace;font-size:10px;color:var(--ink3);display:flex;align-items:center;gap:4px}
+.legdot{width:5px;height:5px;border-radius:50%}
+.leg-hs-lbl{font-size:10px;font-weight:700;color:var(--ink2);letter-spacing:.2px;padding-right:6px;border-right:1px solid var(--bdr2);margin-right:2px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:var(--rsm);font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;border:none;transition:all .14s;line-height:1;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:#1348d4}
+.btn-primary:active{transform:scale(.97)}
+.btn-ghost{background:var(--surf);color:var(--ink2);border:1.5px solid var(--bdr2)}
+.btn-ghost:hover{background:var(--panel)}
+.btn-sm{font-size:11.5px;padding:5px 11px}
+.btn-xl{background:var(--gbg);color:var(--g);border:1.5px solid var(--gbdr);font-size:12px}
+.btn-xl:hover{background:var(--gchip)}
+.btn-xl .lbl{display:none}
+@media(min-width:560px){.btn-xl .lbl{display:inline}}
+
+/* ── VIEWS ── */
+.view{display:none;padding-top:50px;min-height:100vh}
+.view.active{display:block;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* ── DASHBOARD ── */
+.hero{padding:14px 14px 11px;background:var(--surf);border-bottom:1px solid var(--bdr)}
+@media(min-width:640px){.hero{padding:24px 24px 18px}}
+.hero-title{font-size:17px;font-weight:700;letter-spacing:-.3px}
+@media(min-width:640px){.hero-title{font-size:21px}}
+.hero-title em{font-style:normal;color:var(--blue)}
+.hero-sub{color:var(--ink3);font-size:11.5px;margin-top:3px}
+.pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:11px}
+.pill{display:flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;border:1.5px solid}
+.pill.g{background:var(--gbg);color:var(--g);border-color:var(--gbdr)}
+.pill.y{background:var(--ybg);color:var(--y);border-color:var(--ybdr)}
+.pill.r{background:var(--rbg);color:var(--r);border-color:var(--rbdr)}
+.pill.n{background:var(--panel);color:var(--ink3);border-color:var(--bdr)}
+.pilldot{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+/* ── TABLE (desktop only) ── */
+.tshell{margin:12px 12px 20px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rad);box-shadow:var(--sh2);overflow:hidden}
+@media(min-width:640px){.tshell{margin:14px 20px 24px}}
+.tscroll{display:none;overflow-x:auto}
+@media(min-width:960px){.tscroll{display:block}}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{padding:9px 11px;font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3);background:#f8f9fd;border-bottom:1px solid var(--bdr);white-space:nowrap}
+th.tl{text-align:left}th.tc{text-align:center}
+.cat-grp{background:#f0f2fa!important;color:var(--ink2)!important}
+tbody tr{cursor:pointer;border-bottom:1px solid var(--bdr);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#f5f6fb}
+td{padding:9px 11px;vertical-align:middle}
+td.tc{text-align:center;vertical-align:middle;padding-left:6px;padding-right:6px}
+.sep-l{border-left:1px solid var(--bdr)}
+.acell{display:flex;align-items:center;gap:9px}
+.aname{font-weight:600;font-size:12.5px;letter-spacing:-.1px}
+.asub{font-size:11px;color:var(--ink3);margin-top:1px}
+.badge{display:inline-flex;align-items:center;justify-content:center;width:76px;padding:3px 4px;border-radius:5px;font-size:10.5px;font-weight:600;white-space:nowrap;border:1px solid transparent;box-sizing:border-box}
+.badge.promoter{background:var(--gchip);color:var(--g);border-color:var(--gbdr)}
+.badge.passive{background:var(--ychip);color:var(--y);border-color:var(--ybdr)}
+.badge.detractor{background:var(--rchip);color:var(--r);border-color:var(--rbdr)}
+.badge.na{background:var(--panel);color:var(--ink3);border-color:var(--bdr)}
+.hcell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:100%}
+.hnum{font-family:'Geist Mono',monospace;font-size:13.5px;font-weight:500}
+.hbar{width:48px;height:3px;background:var(--bdr);border-radius:99px;overflow:hidden}
+.hfill{height:100%;border-radius:99px}
+.chip{display:inline-flex;align-items:center;justify-content:center;width:44px;padding:3px 2px;border-radius:5px;font-family:'Geist Mono',monospace;font-size:11px;font-weight:500;border:1px solid;white-space:nowrap;box-sizing:border-box}
+.chip.g{background:var(--gbg);color:var(--g);border-color:var(--gbdr)}
+.chip.y{background:var(--ybg);color:var(--y);border-color:var(--ybdr)}
+.chip.r{background:var(--rbg);color:var(--r);border-color:var(--rbdr)}
+.chip.n{background:var(--panel);color:var(--ink3);border-color:var(--bdr)}
+.adname{font-size:11.5px;font-weight:500;color:var(--ink2)}
+.adsub{font-size:10.5px;color:var(--ink3);margin-top:1px}
+.upd-ts{font-family:'Geist Mono',monospace;font-size:10px;color:var(--blue)}
+.upd-def{font-size:10.5px;color:var(--ink3);font-style:italic}
+
+/* ── INLINE SPARKLINE ── */
+.spark{display:flex;align-items:flex-end;gap:1.5px;height:13px;margin-top:3px}
+.sb{border-radius:1px 1px 0 0;flex:1;min-width:3px;max-width:7px}
+.sa{font-size:9.5px;font-weight:700;margin-left:3px;align-self:center;flex-shrink:0}
+.sa.up{color:var(--g)}.sa.down{color:var(--r)}.sa.same{color:var(--ink3)}
+.asub{font-size:10.5px;color:var(--ink3);margin-top:1px}
+
+/* ── MOBILE CARDS ── */
+.cards{display:block}
+@media(min-width:960px){.cards{display:none}}
+.acard{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer;border-bottom:1px solid var(--bdr);transition:background .1s;-webkit-tap-highlight-color:transparent}
+.acard:last-child{border-bottom:none}
+.acard:active{background:#f0f1f8}
+.cbody{flex:1;min-width:0}
+.cname{font-weight:600;font-size:13.5px;letter-spacing:-.15px}
+.cmeta{font-size:11px;color:var(--ink3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctags{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;align-items:center}
+.cright{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.cscore{font-family:'Geist Mono',monospace;font-size:17px;font-weight:500}
+.cmini{display:flex;gap:2px;flex-wrap:wrap;justify-content:flex-end;max-width:120px}
+.mc{font-family:'Geist Mono',monospace;font-size:9.5px;font-weight:500;padding:2px 2px;border-radius:4px;border:1px solid;width:34px;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}
+.mc.g{background:var(--gbg);color:var(--g);border-color:var(--gbdr)}.mc.y{background:var(--ybg);color:var(--y);border-color:var(--ybdr)}.mc.r{background:var(--rbg);color:var(--r);border-color:var(--rbdr)}.mc.n{background:var(--panel);color:var(--ink3);border-color:var(--bdr)}
+.carr{color:var(--ink3);font-size:18px;margin-left:2px}
+
+/* ── INPUT VIEW ── */
+.ibar{position:sticky;top:50px;z-index:200;background:rgba(255,255,255,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;padding:8px 14px;gap:8px}
+@media(min-width:640px){.ibar{padding:8px 20px}}
+.back{display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--ink2);background:none;border:none;cursor:pointer;padding:6px 0;min-height:36px}
+.back:hover{color:var(--ink)}
+.iactions{display:flex;gap:6px}
+
+/* ── SCORECARD ── */
+.scard{margin:10px 12px 0;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rad);box-shadow:var(--sh2);overflow:hidden;transition:box-shadow .2s}
+@media(min-width:640px){.scard{margin:14px 20px 0}}
+.scard.pulse{box-shadow:0 0 0 3px rgba(27,94,247,.16),var(--sh2)}
+.sc-hd{padding:12px 14px;border-bottom:1px solid var(--bdr)}
+.sc-name{font-size:15px;font-weight:700;letter-spacing:-.2px}
+@media(min-width:480px){.sc-name{font-size:18px}}
+.sc-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.sc-tag{font-size:10px;font-weight:500;color:var(--ink2);background:var(--panel);border:1px solid var(--bdr);padding:2px 7px;border-radius:99px}
+.sc-tag.hi{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-bdr)}
+.sc-main{display:flex;align-items:stretch;border-bottom:1px solid var(--bdr)}
+.sc-score{padding:12px 14px;border-right:1px solid var(--bdr);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;flex-shrink:0;min-width:80px}
+@media(min-width:400px){.sc-score{padding:14px 18px;min-width:96px}}
+.sc-lbl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.55px;color:var(--ink3)}
+.sc-big{font-family:'Geist Mono',monospace;font-size:34px;font-weight:400;line-height:1;transition:color .2s}
+@media(min-width:400px){.sc-big{font-size:40px}}
+@media(min-width:480px){.sc-big{font-size:44px}}
+.sc-out{font-size:11px;font-weight:600;margin-top:3px;transition:color .2s}
+.sc-bar{flex:1;padding:12px 14px;display:flex;flex-direction:column;justify-content:center}
+.sc-barlbl{font-family:'Geist Mono',monospace;font-size:10px;color:var(--ink3);margin-bottom:7px}
+.sc-track{height:6px;background:var(--bdr);border-radius:99px;overflow:hidden}
+.sc-fill{height:100%;border-radius:99px;transition:width .3s ease,background .2s}
+.sc-ticks{display:flex;justify-content:space-between;margin-top:3px}
+.sc-ticks span{font-size:9px;color:var(--ink3);font-family:'Geist Mono',monospace}
+.sc-cats{display:grid;grid-template-columns:repeat(3,1fr)}
+@media(min-width:600px){.sc-cats{grid-template-columns:repeat(6,1fr)}}
+.sc-cat{padding:8px 6px;text-align:center;border-right:1px solid var(--bdr);border-top:1px solid var(--bdr)}
+.sc-cat:last-child{border-right:none}
+.sc-cat:nth-child(3n){border-right:none}
+@media(min-width:600px){.sc-cat:nth-child(3n){border-right:1px solid var(--bdr)}}
+.sc-clbl{font-size:8.5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3);margin-bottom:3px}
+.sc-cval{font-family:'Geist Mono',monospace;font-size:14px;font-weight:500;transition:color .2s}
+.sc-cval.g{color:var(--g)}.sc-cval.y{color:var(--y)}.sc-cval.r{color:var(--r)}.sc-cval.n{color:var(--ink3)}
+
+/* ── INPUT SECTIONS ── */
+.swrap{padding:10px 12px 80px;display:flex;flex-direction:column;gap:9px}
+@media(min-width:640px){.swrap{padding:14px 20px 64px}}
+.sec{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rad);box-shadow:var(--sh2);overflow:hidden}
+.sec-hd{display:flex;align-items:center;gap:8px;padding:10px 13px;border-bottom:1px solid var(--bdr)}
+.sec-ico{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.sec-ttl{font-weight:600;font-size:12.5px;flex:1;letter-spacing:-.1px}
+.sec-sc{font-family:'Geist Mono',monospace;font-size:13.5px;font-weight:500;transition:color .2s}
+.sec-sc.g{color:var(--g)}.sec-sc.y{color:var(--y)}.sec-sc.r{color:var(--r)}.sec-sc.n{color:var(--ink3)}
+/* Single column on mobile, 2-col sm, 3-col md, 4-col lg */
+.fgrid{display:grid;grid-template-columns:1fr}
+@media(min-width:420px){.fgrid{grid-template-columns:1fr 1fr}}
+@media(min-width:640px){.fgrid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:960px){.fgrid{grid-template-columns:repeat(4,1fr)}}
+.field{padding:10px 12px;border-bottom:1px solid var(--bdr)}
+/* Only add right border when multi-col */
+@media(min-width:420px){
+  .field{border-right:1px solid var(--bdr)}
+  .fgrid .field:nth-child(2n){border-right:none}
+}
+@media(min-width:640px){
+  .fgrid .field:nth-child(2n){border-right:1px solid var(--bdr)}
+  .fgrid .field:nth-child(3n){border-right:none}
+}
+@media(min-width:960px){
+  .fgrid .field:nth-child(3n){border-right:1px solid var(--bdr)}
+  .fgrid .field:nth-child(4n){border-right:none}
+}
+.flbl{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.55px;color:var(--ink3);margin-bottom:6px;line-height:1.3}
+.fsel{width:100%;padding:9px 28px 9px 10px;min-height:44px;border:1.5px solid var(--bdr2);border-radius:var(--rsm);background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238b91a8' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 9px center;color:var(--ink);font-family:'Geist',sans-serif;font-size:13px;appearance:none;-webkit-appearance:none;cursor:pointer;transition:border-color .13s}
+.fsel:focus{outline:none;border-color:var(--blue);background-color:var(--surf)}
+.fsel.sg{border-color:#6ee7a0;background-color:var(--gbg)}
+.fsel.sy{border-color:#fcd34d;background-color:var(--ybg)}
+.fsel.sr{border-color:#fca5a5;background-color:var(--rbg)}
+.fro{width:100%;padding:9px 10px;min-height:44px;border:1.5px solid var(--bdr);border-radius:var(--rsm);background:var(--panel);color:var(--ink3);font-family:'Geist',sans-serif;font-size:13px;display:flex;align-items:center}
+
+/* ── PARAM TRENDLINE ── */
+.ptl-sec{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rad);box-shadow:var(--sh2);overflow:hidden}
+.ptl-hd{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--bdr);background:var(--purple-bg)}
+.ptl-ico{width:22px;height:22px;border-radius:6px;background:rgba(109,40,217,.12);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.ptl-ttl{font-weight:600;font-size:12.5px;flex:1;color:var(--purple)}
+.ptl-sub{font-size:11px;color:var(--ink3)}
+.ptl-empty{padding:20px 16px;text-align:center;color:var(--ink3);font-size:12px}
+.ptl-row{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--bdr);overflow:hidden}
+.ptl-row:last-child{border-bottom:none}
+.ptl-param{flex:0 0 130px;font-size:11px;font-weight:500;color:var(--ink2)}
+@media(min-width:480px){.ptl-param{flex:0 0 150px;font-size:11.5px}}
+.ptl-sec-lbl{font-size:10px;color:var(--ink3);margin-top:1px}
+.ptl-dots{display:flex;align-items:flex-start;gap:0;flex:1;overflow:hidden}
+.ptl-dw{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;position:relative;min-width:0}
+.ptl-dw:not(:last-child)::after{content:'';position:absolute;top:9px;left:calc(50% + 10px);right:calc(-50% + 10px);height:1px;background:var(--bdr2);z-index:0}
+.ptl-dot{width:18px;height:18px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;z-index:1;position:relative}
+.ptl-dot.g{background:var(--gbg);border-color:var(--g);color:var(--g)}
+.ptl-dot.y{background:var(--ybg);border-color:var(--y);color:var(--y)}
+.ptl-dot.r{background:var(--rbg);border-color:var(--r);color:var(--r)}
+.ptl-dot.n{background:var(--panel);border-color:var(--bdr2);color:var(--ink3)}
+.ptl-dval{font-size:8.5px;color:var(--ink3);max-width:40px;text-align:center;word-break:break-word;line-height:1.2}
+.ptl-date{font-family:'Geist Mono',monospace;font-size:7.5px;color:var(--ink3)}
+.ptl-arrow{font-size:14px;margin-left:4px;flex-shrink:0;font-weight:700}
+.ptl-arrow.up{color:var(--g)}.ptl-arrow.down{color:var(--r)}.ptl-arrow.same{color:var(--ink3)}
+
+/* ── REVIEW SESSIONS ── */
+.rev-sec{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rad);box-shadow:var(--sh2);overflow:hidden}
+.rev-hd{display:flex;align-items:center;gap:8px;padding:10px 13px;border-bottom:1px solid var(--bdr);background:var(--teal-bg);flex-wrap:wrap}
+.rev-ico{width:22px;height:22px;border-radius:6px;background:rgba(14,116,144,.12);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.rev-info{flex:1;min-width:0}
+.rev-ttl{font-weight:600;font-size:12.5px;color:var(--teal)}
+.rev-sub{font-size:11px;color:var(--ink3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rev-hd-r{display:flex;gap:6px;align-items:center;flex-shrink:0}
+
+/* Session tabs */
+.stabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--bdr);background:var(--panel);scrollbar-width:none}
+.stabs::-webkit-scrollbar{display:none}
+.stab{flex-shrink:0;padding:11px 13px;font-size:11.5px;font-weight:600;color:var(--ink3);cursor:pointer;border-bottom:2px solid transparent;border-right:1px solid var(--bdr);transition:all .15s;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.stab:active{background:rgba(255,255,255,.7)}
+.stab.active{color:var(--teal);border-bottom-color:var(--teal);background:var(--surf)}
+.stab-bdg{font-size:9px;padding:1px 5px;border-radius:99px;margin-left:5px;font-weight:700;vertical-align:middle}
+.stab-bdg.open{background:var(--ychip);color:var(--y)}
+.stab-bdg.overdue{background:var(--rchip);color:var(--r)}
+.stab-bdg.done{background:var(--gchip);color:var(--g)}
+
+/* Session panel */
+.spanel{display:none}
+.spanel.active{display:block}
+
+/* ── PRE-CALL NOTES ── */
+.notes-sub{border-bottom:1px solid var(--bdr);overflow:hidden}
+.notes-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 13px 0;gap:6px;flex-wrap:wrap}
+.notes-hdr-left{display:flex;align-items:center;gap:7px}
+.notes-hdr-icon{font-size:14px}
+.notes-hdr-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3)}
+.notes-hdr-session{font-size:11px;color:var(--ink3)}
+.notes-cats{display:flex;gap:0;padding:8px 12px;border-bottom:1px solid var(--bdr)}
+.ncat-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;border:1.5px solid var(--bdr);background:var(--surf);cursor:pointer;transition:all .15s;position:relative;border-right:none;-webkit-tap-highlight-color:transparent}
+.ncat-btn:first-child{border-radius:var(--rsm) 0 0 var(--rsm)}
+.ncat-btn:last-child{border-radius:0 var(--rsm) var(--rsm) 0;border-right:1.5px solid var(--bdr)}
+.ncat-btn:active{filter:brightness(.96)}
+.ncat-btn.active{z-index:2;border-color:transparent}
+.ncat-btn.active.risk{background:var(--rbg);box-shadow:0 0 0 2px var(--r)}
+.ncat-btn.active.update{background:var(--ybg);box-shadow:0 0 0 2px var(--y)}
+.ncat-btn.active.win{background:var(--gbg);box-shadow:0 0 0 2px var(--g)}
+.ncat-emoji{font-size:20px;line-height:1}
+.ncat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink2)}
+.ncat-btn.active.risk  .ncat-label{color:var(--r)}
+.ncat-btn.active.update .ncat-label{color:var(--y)}
+.ncat-btn.active.win   .ncat-label{color:var(--g)}
+.ncat-count{position:absolute;top:5px;right:7px;font-size:8.5px;font-weight:700;padding:1px 5px;border-radius:99px;background:var(--ink3);color:#fff;line-height:1.4}
+.ncat-btn.active.risk   .ncat-count{background:var(--r)}
+.ncat-btn.active.update .ncat-count{background:var(--y)}
+.ncat-btn.active.win    .ncat-count{background:var(--g)}
+.notes-panel{display:none;padding:11px 12px 13px;animation:panelIn .15s ease}
+.notes-panel.active{display:block}
+@keyframes panelIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.notes-panel.risk   .nbdot{background:var(--r)}
+.notes-panel.update .nbdot{background:var(--y)}
+.notes-panel.win    .nbdot{background:var(--g)}
+.notes-panel.risk  {background:linear-gradient(to bottom,rgba(192,24,12,.025),transparent 60px)}
+.notes-panel.update{background:linear-gradient(to bottom,rgba(146,96,10,.025),transparent 60px)}
+.notes-panel.win   {background:linear-gradient(to bottom,rgba(15,127,62,.025),transparent 60px)}
+.notes-empty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 0 8px;color:var(--ink3)}
+.notes-empty-icon{font-size:24px;opacity:.4}
+.notes-empty-txt{font-size:12px}
+.nblist{display:flex;flex-direction:column;gap:6px;margin-bottom:9px}
+.nbrow{display:flex;align-items:flex-start;gap:8px;padding:9px 10px;border-radius:var(--rsm);background:var(--surf);border:1px solid var(--bdr);transition:border-color .12s}
+.nbrow:focus-within{border-color:var(--bdr2)}
+.nbdot{margin-top:9px;width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.nbinp{flex:1;padding:3px 4px;border:none;background:transparent;font-family:'Geist',sans-serif;font-size:13px;color:var(--ink);resize:none;overflow:hidden;min-height:28px;line-height:1.5;outline:none}
+.nbinp::placeholder{color:var(--ink3)}
+.nbdel{padding:4px 6px;background:none;border:none;cursor:pointer;color:var(--ink3);font-size:12px;border-radius:4px;margin-top:3px;flex-shrink:0;min-width:28px;min-height:28px;display:flex;align-items:center;justify-content:center}
+.nbdel:active{color:var(--r)}
+@media(hover:hover){.nbdel{opacity:0}.nbrow:hover .nbdel{opacity:1}}
+.add-note-btn{display:flex;align-items:center;gap:6px;padding:9px 12px;border-radius:var(--rsm);font-size:12.5px;font-weight:600;cursor:pointer;border:1.5px dashed var(--bdr2);background:transparent;color:var(--ink3);transition:all .13s;width:100%;-webkit-tap-highlight-color:transparent}
+.add-note-btn:active{background:var(--panel)}
+@media(hover:hover){.add-note-btn:hover{border-color:var(--bdr2);background:var(--panel);color:var(--ink2)}}
+
+/* ── ACTION ITEMS ── */
+.ai-sub{border-top:1px solid var(--bdr)}
+.ai-sub-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 13px 0;gap:6px;flex-wrap:wrap}
+.ai-sub-ttl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3);display:flex;align-items:center;gap:6px}
+.ai-sub-ttl::before{content:'';width:3px;height:12px;background:var(--teal);border-radius:2px}
+.ai-stats{display:flex;gap:5px;flex-wrap:wrap}
+.aisp{font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;border:1px solid}
+.aisp.pending{background:var(--ybg);color:var(--y);border-color:var(--ybdr)}
+.aisp.delayed{background:var(--rbg);color:var(--r);border-color:var(--rbdr)}
+.aisp.done{background:var(--gbg);color:var(--g);border-color:var(--gbdr)}
+.ai-wrap{overflow-x:auto;padding-top:8px;-webkit-overflow-scrolling:touch}
+.ait{width:100%;border-collapse:collapse;font-size:12px;min-width:440px}
+.ait th{padding:6px 9px;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3);background:var(--panel);border-bottom:1px solid var(--bdr);text-align:left;white-space:nowrap}
+.ait th.tc{text-align:center}
+.ait td{padding:8px 9px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+.ait tr:last-child td{border-bottom:none}
+.ait tr:hover td{background:#f9fafb}
+.ai-num{font-family:'Geist Mono',monospace;font-size:10px;color:var(--ink3)}
+.ai-task{font-size:12.5px;font-weight:500;color:var(--ink);line-height:1.35}
+.ai-task.done{text-decoration:line-through;color:var(--ink3)}
+.ai-ow{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.ai-av{width:20px;height:20px;border-radius:50%;background:var(--blue-bg);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0}
+.ai-oname{font-size:11.5px;color:var(--ink2)}
+.ai-due{font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap}
+.ai-due.overdue{color:var(--r)}.ai-due.soon{color:var(--y)}.ai-due.ok{color:var(--ink3)}
+.ai-pri{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--ink2)}
+.ai-pd{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ai-pd.high{background:var(--r)}.ai-pd.med{background:var(--y)}.ai-pd.low{background:var(--g)}
+.ai-status{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:99px;font-size:10.5px;font-weight:600;cursor:pointer;border:1.5px solid;transition:all .14s;white-space:nowrap;-webkit-tap-highlight-color:transparent;min-height:30px}
+.ai-status.pending{background:var(--ybg);color:var(--y);border-color:var(--ybdr)}
+.ai-status.delayed{background:var(--rbg);color:var(--r);border-color:var(--rbdr)}
+.ai-status.done{background:var(--gbg);color:var(--g);border-color:var(--gbdr)}
+.ai-del{background:none;border:none;cursor:pointer;color:var(--ink3);font-size:12px;padding:4px 6px;border-radius:4px;min-width:28px;min-height:28px;display:flex;align-items:center;justify-content:center}
+.ai-del:active{color:var(--r)}
+
+/* Add-item form — stacked on mobile, row on ≥560px */
+.ai-add{padding:11px 13px;background:var(--panel);border-top:1px solid var(--bdr);display:flex;flex-direction:column;gap:9px}
+@media(min-width:560px){.ai-add{flex-direction:row;flex-wrap:wrap;align-items:flex-end;gap:7px}}
+.aif{display:flex;flex-direction:column;gap:3px;width:100%}
+@media(min-width:560px){.aif{width:auto}}
+.aifl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3)}
+.aiin{padding:9px 10px;border:1.5px solid var(--bdr2);border-radius:var(--rsm);font-family:'Geist',sans-serif;font-size:13px;background:var(--surf);color:var(--ink);min-height:42px;transition:border-color .13s;width:100%}
+.aiin:focus{outline:none;border-color:var(--blue)}
+@media(min-width:560px){.aiin.task{flex:1;min-width:150px;width:auto}.aiin.owner{width:110px}.aiin.due{width:120px}}
+.aisel{padding:9px 24px 9px 9px;border:1.5px solid var(--bdr2);border-radius:var(--rsm);font-family:'Geist',sans-serif;font-size:13px;background:var(--surf) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M1 1l3.5 3.5L8 1' stroke='%238b91a8' fill='none' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 8px center;color:var(--ink);appearance:none;-webkit-appearance:none;cursor:pointer;min-height:42px;width:100%}
+@media(min-width:560px){.aisel{width:90px}}
+.aisel:focus{outline:none;border-color:var(--blue)}
+.overdue-alert{display:flex;align-items:center;gap:6px;padding:8px 13px;background:var(--rbg);border-bottom:1px solid var(--rbdr);font-size:11.5px;color:var(--r);font-weight:500}
+.no-ai{padding:12px 13px;font-size:12px;color:var(--ink3)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--ink);color:#fff;padding:9px 16px;border-radius:var(--rsm);font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:7px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:999;opacity:0;pointer-events:none;transition:transform .26s cubic-bezier(.4,0,.2,1),opacity .26s;max-width:calc(100vw - 32px)}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
+.ti{font-size:13px}
+.toast.ok .ti{color:#4ade80}.toast.err .ti{color:#f87171}
+
+/* ── OVERLAY ── */
+.overlay{position:fixed;inset:0;background:rgba(255,255,255,.68);display:flex;align-items:center;justify-content:center;z-index:500;backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .16s}
+.overlay.show{opacity:1;pointer-events:all}
+.spin{width:30px;height:30px;border-radius:50%;border:2.5px solid var(--bdr2);border-top-color:var(--blue);animation:rot .6s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* ── SAFE AREA (iPhone notch / home bar) ── */
+@supports(padding:max(0px)){
+  .topbar{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
+  .ibar{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
+  .swrap{padding-bottom:max(80px,env(safe-area-inset-bottom))}
+  .hero{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
+  .tshell{margin-left:max(12px,env(safe-area-inset-left));margin-right:max(12px,env(safe-area-inset-right))}
+}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="tb-brand">
+    <div class="tb-logo">N</div>
+    <span class="tb-name">NPS Intelligence</span>
+    <span class="tb-badge" id="tb-quarter">JFM '26</span>
+  </div>
+  <div class="tb-right">
+    <div class="legend">
+      <span class="leg-hs-lbl">Health Score</span>
+      <div class="leg"><div class="legdot" style="background:var(--g)"></div>≥ 8 Promoter</div>
+      <div class="leg"><div class="legdot" style="background:var(--y)"></div>6–7 Passive</div>
+      <div class="leg"><div class="legdot" style="background:var(--r)"></div>&lt; 6 Detractor</div>
+    </div>
+    <button class="btn btn-xl" onclick="exportExcel()">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M4 6l2.5 2.5L9 6M2 10v1.5A.5.5 0 002.5 12h8a.5.5 0 00.5-.5V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="lbl">Export Excel</span>
+    </button>
+  </div>
+</nav>
+
+<!-- DASHBOARD VIEW -->
+<div id="vdash" class="view active">
+  <div class="hero">
+    <div class="hero-title">Account <em>Health Dashboard</em></div>
+    <div class="hero-sub">Click any account to edit inputs · Scores update in real-time</div>
+    <div class="pills" id="pills"></div>
+  </div>
+
+  <!-- Health Score Trendline section -->
+    <div class="tshell">
+    <div class="tscroll">
+      <table>
+        <thead id="dthead"></thead>
+        <tbody id="dtbody"></tbody>
+      </table>
+    </div>
+    <div class="cards" id="dcards"></div>
+  </div>
+</div>
+
+<!-- INPUT VIEW -->
+<div id="vinput" class="view">
+  <div class="ibar">
+    <button class="back" onclick="showDash()">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M8.5 2L4 6.5 8.5 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Dashboard
+    </button>
+    <div class="iactions">
+      <button class="btn btn-ghost btn-sm" onclick="resetAcc()">Reset</button>
+      <button class="btn btn-primary btn-sm" onclick="saveReturn()">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 6l3 3 5-5.5" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Save
+      </button>
+    </div>
+  </div>
+  <div class="scard" id="scard"></div>
+  <div class="swrap" id="swrap"></div>
+</div>
+
+<div class="toast" id="toast"><span class="ti">✓</span><span id="tmsg"></span></div>
+<div class="overlay" id="overlay"><div class="spin"></div></div>
+
+<script>
+/* ══════════ DATA ══════════ */
+/* ══ QUARTER SYSTEM ══
+ * JFM=Jan-Mar, AMJ=Apr-Jun, JAS=Jul-Sep, OND=Oct-Dec
+ * Rolls automatically: Apr 1 → AMJ appears; Jul 1 → JAS; etc.
+ */
+function _qOfDate(d){
+  const m=d.getMonth(),y=d.getFullYear();
+  const q=m<=2?'JFM':m<=5?'AMJ':m<=8?'JAS':'OND';
+  return{q,y};
+}
+function _prevQ(q,y){
+  return q==='JFM'?{q:'OND',y:y-1}:q==='AMJ'?{q:'JFM',y}:q==='JAS'?{q:'AMJ',y}:{q:'JAS',y};
+}
+function qLabel(q,y){return q+"'"+String(y).slice(2);}
+function getDisplayQuarters(){
+  // 4 entries oldest→newest; [3] = current (predicted)
+  let{q,y}=_qOfDate(new Date());
+  const qs=[];
+  for(let i=0;i<4;i++){qs.unshift({label:qLabel(q,y),q,y,isCurrent:i===0});const p=_prevQ(q,y);q=p.q;y=p.y;}
+  return qs;
+}
+function outcomeRank(v){return v==='Promoter'?2:v==='Passive'?1:v==='Detractor'?0:-1;}
+
+const ACCOUNTS=[
+  {name:'Hertz',              scores:{"AMJ'25":'Promoter', "JAS'25":'Passive',   "OND'25":'Passive'  },ad:'Amber Meakin',  tam:'Brian Anderson'},
+  {name:'NASCAR',             scores:{"AMJ'25":'Passive',  "JAS'25":'Passive',   "OND'25":'Promoter' },ad:'Christa Welsh', tam:'Anshika Dixit'},
+  {name:'Audience Rewards',   scores:{"AMJ'25":'Detractor',"JAS'25":'Detractor', "OND'25":'Detractor'},ad:'Andy Pham',     tam:'Ashwini Gohokar'},
+  {name:'My Place',           scores:{"AMJ'25":'Detractor',"JAS'25":'Detractor', "OND'25":'Detractor'},ad:'Amber Meakin',  tam:'Anshika Dixit'},
+  {name:'Royal Caribbean',    scores:{"AMJ'25":'',         "JAS'25":'',          "OND'25":''         },ad:'NA',            tam:'Anshika Dixit'},
+  {name:'Fortress (GoToPass)',scores:{"AMJ'25":'Detractor',"JAS'25":'Detractor', "OND'25":'Passive'  },ad:'Yuki Kawanabe', tam:'Quoc'},
+  {name:'Fleet Farm',         scores:{"AMJ'25":'Detractor',"JAS'25":'Detractor', "OND'25":'Detractor'},ad:'Christa Welsh', tam:'Anshika Dixit'},
+  {name:'Comcast',            scores:{"AMJ'25":'Passive',  "JAS'25":'Passive',   "OND'25":'Passive'  },ad:'Andy Pham',     tam:'Brian Anderson'},
+  {name:'Cochran',            scores:{"AMJ'25":'Passive',  "JAS'25":'Detractor', "OND'25":'Passive'  },ad:'Andy Pham',     tam:'Ashwini Gohokar'},
+  {name:'UPS',                scores:{"AMJ'25":'',         "JAS'25":'Passive',   "OND'25":'Passive'  },ad:'Andy Pham',     tam:'Brian Anderson'},
+  {name:'Sunoco',             scores:{"AMJ'25":'Passive',  "JAS'25":'Passive',   "OND'25":'Promoter' },ad:'Amber Meakin',  tam:'Adarsh Rana'},
+];
+
+const SECS=[
+  {key:'impl',label:'Implementation',    short:'Impl',   ico:'⚙️',bg:'#eff6ff',
+   fields:[{k:'brd',lbl:'BRD Imp Gaps',opts:['High','Med','Low'],sc:{High:0,Med:5,Low:10}},{k:'golive',lbl:'Go-Live / Milestones',opts:['No','Partially Met','Yes'],sc:{No:0,'Partially Met':5,Yes:10}},{k:'postgolive',lbl:'Post Go-Live Items',opts:['Pending','Partially Over','Completed'],sc:{Pending:0,'Partially Over':5,Completed:10}},{k:'complexity',lbl:'Complexity of Solution',opts:['High','Med','Low'],sc:{High:0,Med:5,Low:10}},{k:'impnps',lbl:'IMP NPS',opts:['Detractor','Passive','Promoter'],sc:{Detractor:0,Passive:5,Promoter:10}}],pw:[.2,.2,.2,.2,.2]},
+  {key:'im',label:'Incidence Management',short:'IM',     ico:'🔔',bg:'#fff5f5',
+   fields:[{k:'p0',lbl:'P0 Incidents',opts:['0','1','>1'],sc:{'0':10,'1':5,'>1':0}},{k:'p1',lbl:'P1 Incidents',opts:['0 to 1','2','>2'],sc:{'0 to 1':10,'1':10,'2':5,'>2':0}},{k:'tickets',lbl:'Overall Tickets Trend',opts:['High','Med','Low'],sc:{High:0,Med:5,Low:10}},{k:'quality',lbl:'Quality of Analysis',opts:['Low','Med','High'],sc:{Low:0,Med:5,High:10}},{k:'process',lbl:'Process Adherence',opts:['Low','Med','High'],sc:{Low:0,Med:5,High:10}},{k:'sla',lbl:'SLA Breach / Res Time',opts:['High','Med','Low'],sc:{High:0,Med:5,Low:10}}],pw:[.3,.2,.2,.1,.1,.1]},
+  {key:'cs',label:'Customer Success',    short:'CS',     ico:'🤝',bg:'#f0fdf4',
+   fields:[{k:'coverage',lbl:'Client Coverage',opts:['1 to 2','3','>3'],sc:{'1 to 2':0,'1':0,'3':5,'>3':10}},{k:'poc',lbl:'Client – Change in POC',opts:['Yes','No'],sc:{Yes:0,No:10}},{k:'adtam',lbl:'CAP – Change in AD/TAM',opts:['Yes','No'],sc:{Yes:0,No:10}},{k:'bizgoals',lbl:'Driving Business Goals',opts:['No','Partially','Yes'],sc:{No:0,Partially:5,Yes:10}},{k:'qbr',lbl:'QBR in Last Quarter',opts:['No','Yes'],sc:{No:0,Yes:10}},{k:'sponsor',lbl:'Sponsor in Account',opts:['No','Yes'],sc:{No:0,Yes:10}},{k:'leadership',lbl:'Leadership Touchbase',opts:['No','Yes'],sc:{No:0,Yes:10}}],pw:[.1,.1,.1,.2,.2,.2,.1]},
+  {key:'bau',label:'BAU Operations',     short:'BAU',    ico:'📊',bg:'#fffbeb',
+   fields:[{k:'prevnps',lbl:'Prev Quarter NPS',opts:['Detractor','Passive','Promoter'],sc:{Detractor:0,Passive:5,Promoter:10}},{k:'cadence',lbl:'Weekly Cadence',opts:['No','Yes'],sc:{No:0,Yes:10}},{k:'qnps',lbl:'Quarterly NPS Touchbase',opts:['No','Yes'],sc:{No:0,Yes:10}},{k:'proactive',lbl:'Proactive Alerts',opts:['No','Partial','Yes'],sc:{No:0,Partial:5,Yes:10}},{k:'opensr',lbl:'Open SR/CR',opts:['>5','2 to 5','<2'],sc:{'>5':0,'2 to 5':5,'<2':10}}],pw:[.2,.2,.2,.2,.2]},
+  {key:'prod',label:'Product Adoption',  short:'Product',ico:'📦',bg:'#fdf4ff',
+   fields:[{k:'loyalty',lbl:'Loyalty+',opts:['No','Low Usage','Yes'],sc:{No:0,'Low Usage':5,Yes:10}},{k:'engage',lbl:'Engage+',opts:['No','Low Usage','Yes'],sc:{No:0,'Low Usage':5,Yes:10}},{k:'insights',lbl:'Insights+',opts:['No','Low Usage','Yes'],sc:{No:0,'Low Usage':5,Yes:10}},{k:'rewards',lbl:'Rewards+',opts:['No','Low Usage','Yes'],sc:{No:0,'Low Usage':5,Yes:10}},{k:'dependency',lbl:'Dependency in Ecosystem',opts:['Low','Med','High'],sc:{Low:0,Med:5,High:10}}],pw:[.2,.2,.2,.1,.3]},
+  {key:'prog',label:'Program Efficiency',short:'Program',ico:'📋',bg:'#f0f9ff',
+   fields:[{k:'rules',lbl:'Program Rules',opts:['More Gaps','Some gaps','No Gap'],sc:{'More Gaps':0,'Some gaps':5,'No Gap':10}},{k:'configs',lbl:'Critical Configs',opts:['More Gaps','Some gaps','No Gap'],sc:{'More Gaps':0,'Some gaps':5,'No Gap':10}},{k:'promos',lbl:'Promotions Efficiency',opts:['More Gaps','Some gaps','No Gap'],sc:{'More Gaps':0,'Some gaps':5,'No Gap':10}},{k:'procadh',lbl:'Process Adherence',opts:['More Gaps','Some gaps','No Gap'],sc:{'More Gaps':0,'Some gaps':5,'No Gap':10}},{k:'expiry',lbl:'Expiry – Tier/Points',opts:['More Gaps','Some gaps','No Gap'],sc:{'More Gaps':0,'Some gaps':5,'No Gap':10}}],pw:[.2,.2,.2,.2,.2]},
+];
+
+const DEFS=[
+  {size:'',years:'1-2 years',impl:{brd:'Low',golive:'Yes',postgolive:'Completed',complexity:'Med',impnps:'Passive'},im:{p0:'1',p1:'0 to 1',tickets:'Low',quality:'High',process:'High',sla:'Low'},cs:{coverage:'>3',poc:'No',adtam:'No',bizgoals:'Yes',qbr:'Yes',sponsor:'Yes',leadership:'Yes'},bau:{prevnps:'Passive',cadence:'Yes',qnps:'Yes',proactive:'Yes',opensr:'2 to 5'},prod:{loyalty:'Yes',engage:'No',insights:'Yes',rewards:'Yes',dependency:'High'},prog:{rules:'No Gap',configs:'Some gaps',promos:'No Gap',procadh:'No Gap',expiry:'No Gap'}},
+  {size:'',years:'1-2 years',impl:{brd:'Low',golive:'Yes',postgolive:'Completed',complexity:'Med',impnps:'Passive'},im:{p0:'1',p1:'>2',tickets:'High',quality:'High',process:'High',sla:'Low'},cs:{coverage:'>3',poc:'No',adtam:'Yes',bizgoals:'No',qbr:'Yes',sponsor:'Yes',leadership:'Yes'},bau:{prevnps:'Promoter',cadence:'Yes',qnps:'Yes',proactive:'Yes',opensr:'2 to 5'},prod:{loyalty:'Yes',engage:'No',insights:'Yes',rewards:'Yes',dependency:'High'},prog:{rules:'No Gap',configs:'Some gaps',promos:'Some gaps',procadh:'Some gaps',expiry:'Some gaps'}},
+  {size:'',years:'1-2 years',impl:{brd:'High',golive:'No',postgolive:'Partially Over',complexity:'High',impnps:'Detractor'},im:{p0:'0',p1:'0 to 1',tickets:'',quality:'',process:'',sla:''},cs:{coverage:'>3',poc:'No',adtam:'No',bizgoals:'No',qbr:'Yes',sponsor:'No',leadership:'Yes'},bau:{prevnps:'Detractor',cadence:'Yes',qnps:'Yes',proactive:'Yes',opensr:'>5'},prod:{loyalty:'Yes',engage:'Yes',insights:'Yes',rewards:'Yes',dependency:'High'},prog:{rules:'More Gaps',configs:'Some gaps',promos:'Some gaps',procadh:'More Gaps',expiry:'Some gaps'}},
+  {size:'',years:'1-2 years',impl:{brd:'High',golive:'Partially Met',postgolive:'Completed',complexity:'High',impnps:'Detractor'},im:{p0:'0',p1:'0 to 1',tickets:'Low',quality:'Med',process:'High',sla:'Low'},cs:{coverage:'>3',poc:'No',adtam:'No',bizgoals:'No',qbr:'No',sponsor:'No',leadership:'Yes'},bau:{prevnps:'Detractor',cadence:'Yes',qnps:'No',proactive:'Yes',opensr:'>5'},prod:{loyalty:'Yes',engage:'Yes',insights:'Yes',rewards:'No',dependency:'High'},prog:{rules:'More Gaps',configs:'More Gaps',promos:'More Gaps',procadh:'More Gaps',expiry:'No Gap'}},
+  {size:'',years:'1-2 years',impl:{brd:'Low',golive:'Yes',postgolive:'Completed',complexity:'Low',impnps:''},im:{p0:'0',p1:'',tickets:'Low',quality:'',process:'',sla:'Low'},cs:{coverage:'1 to 2',poc:'No',adtam:'No',bizgoals:'No',qbr:'No',sponsor:'Yes',leadership:'Yes'},bau:{prevnps:'',cadence:'No',qnps:'No',proactive:'No',opensr:'<2'},prod:{loyalty:'No',engage:'No',insights:'No',rewards:'Low Usage',dependency:'Low'},prog:{rules:'',configs:'',promos:'',procadh:'',expiry:''}},
+  {size:'',years:'1-2 years',impl:{brd:'Med',golive:'Partially Met',postgolive:'Completed',complexity:'High',impnps:'Detractor'},im:{p0:'0',p1:'0 to 1',tickets:'Med',quality:'High',process:'Med',sla:'Low'},cs:{coverage:'>3',poc:'No',adtam:'Yes',bizgoals:'No',qbr:'No',sponsor:'No',leadership:'Yes'},bau:{prevnps:'Detractor',cadence:'Yes',qnps:'No',proactive:'Yes',opensr:'>5'},prod:{loyalty:'Yes',engage:'Yes',insights:'Yes',rewards:'No',dependency:'High'},prog:{rules:'Some gaps',configs:'Some gaps',promos:'Some gaps',procadh:'No Gap',expiry:'Some gaps'}},
+  {size:'',years:'1-2 years',impl:{brd:'High',golive:'Partially Met',postgolive:'Partially Over',complexity:'High',impnps:'Detractor'},im:{p0:'0',p1:'0 to 1',tickets:'Low',quality:'Med',process:'High',sla:'Low'},cs:{coverage:'3',poc:'Yes',adtam:'Yes',bizgoals:'No',qbr:'Yes',sponsor:'No',leadership:'Yes'},bau:{prevnps:'Detractor',cadence:'Yes',qnps:'Yes',proactive:'Yes',opensr:'2 to 5'},prod:{loyalty:'Yes',engage:'Yes',insights:'Low Usage',rewards:'Yes',dependency:'High'},prog:{rules:'No Gap',configs:'Some gaps',promos:'Some gaps',procadh:'More Gaps',expiry:'No Gap'}},
+  {size:'',years:'< 1 year',impl:{brd:'Low',golive:'Yes',postgolive:'Completed',complexity:'Low',impnps:'Passive'},im:{p0:'1',p1:'0 to 1',tickets:'Low',quality:'High',process:'High',sla:'Low'},cs:{coverage:'3',poc:'No',adtam:'No',bizgoals:'Yes',qbr:'No',sponsor:'Yes',leadership:'Yes'},bau:{prevnps:'Passive',cadence:'Yes',qnps:'Yes',proactive:'Yes',opensr:'2 to 5'},prod:{loyalty:'No',engage:'No',insights:'No',rewards:'Yes',dependency:'High'},prog:{rules:'No Gap',configs:'Some gaps',promos:'No Gap',procadh:'No Gap',expiry:'No Gap'}},
+  {size:'',years:'< 1 year',impl:{brd:'Med',golive:'Yes',postgolive:'Completed',complexity:'Med',impnps:'Passive'},im:{p0:'0',p1:'0 to 1',tickets:'Low',quality:'High',process:'High',sla:'Low'},cs:{coverage:'3',poc:'No',adtam:'No',bizgoals:'No',qbr:'No',sponsor:'No',leadership:'No'},bau:{prevnps:'Passive',cadence:'Yes',qnps:'Yes',proactive:'Yes',opensr:'2 to 5'},prod:{loyalty:'Yes',engage:'Yes',insights:'Yes',rewards:'No',dependency:'High'},prog:{rules:'No Gap',configs:'No Gap',promos:'No Gap',procadh:'No Gap',expiry:'No Gap'}},
+  {size:'',years:'< 1 year',impl:{brd:'Low',golive:'Yes',postgolive:'Completed',complexity:'Low',impnps:'Passive'},im:{p0:'1',p1:'0 to 1',tickets:'Low',quality:'High',process:'High',sla:'Low'},cs:{coverage:'>3',poc:'No',adtam:'Yes',bizgoals:'No',qbr:'No',sponsor:'No',leadership:'Yes'},bau:{prevnps:'Passive',cadence:'Yes',qnps:'No',proactive:'Yes',opensr:'<2'},prod:{loyalty:'Yes',engage:'No',insights:'Yes',rewards:'No',dependency:'High'},prog:{rules:'No Gap',configs:'More Gaps',promos:'No Gap',procadh:'Some gaps',expiry:'No Gap'}},
+  {size:'',years:'',impl:{brd:'',golive:'',postgolive:'',complexity:'',impnps:''},im:{p0:'',p1:'',tickets:'',quality:'',process:'',sla:''},cs:{coverage:'',poc:'',adtam:'',bizgoals:'',qbr:'',sponsor:'',leadership:''},bau:{prevnps:'',cadence:'',qnps:'',proactive:'',opensr:''},prod:{loyalty:'',engage:'',insights:'',rewards:'',dependency:''},prog:{rules:'',configs:'',promos:'',procadh:'',expiry:''}},
+];
+
+/* ══════ FORTNIGHTLY SESSIONS GENERATOR ══════ */
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function genSessions(){
+  const sessions=[];
+  const now=new Date();
+  for(let i=3;i>=0;i--){
+    const d=new Date(now);
+    d.setDate(d.getDate()-(i*14));
+    const mon=MONTHS[d.getMonth()];
+    const yr=String(d.getFullYear()).slice(2);
+    const reviewNum=d.getDate()<=14?1:2;
+    sessions.push({
+      title:`Fortnightly Review ${reviewNum} – ${mon}'${yr}`,
+      date:d.toISOString().slice(0,10),
+      notes:{risk:[],update:[],win:[]},
+      items:[]
+    });
+  }
+  return sessions;
+}
+
+/* ══════ STATE ══════ */
+let S={}, AI=0, activeTab={};
+function loadS(){
+  try{const s=localStorage.getItem('nps_v6');if(s)S=JSON.parse(s)}catch(e){}
+  ACCOUNTS.forEach((_,i)=>{
+    if(!S[i])S[i]=clone(DEFS[i]);
+    if(!S[i].lastUpdated)S[i].lastUpdated=null;
+    if(!S[i].history)S[i].history=[];
+    if(!S[i].reviews||!S[i].reviews.length)S[i].reviews=genSessions();
+    SECS.forEach(sec=>{
+      if(!S[i][sec.key])S[i][sec.key]=clone(DEFS[i][sec.key]);
+      sec.fields.forEach(f=>{if(S[i][sec.key][f.k]===undefined)S[i][sec.key][f.k]=DEFS[i][sec.key][f.k]??''});
+    });
+    // Ensure notes structure exists on each review
+    S[i].reviews.forEach(r=>{
+      if(!r.notes)r.notes={risk:[],update:[],win:[]};
+      ['risk','update','win'].forEach(c=>{if(!r.notes[c])r.notes[c]=[]});
+      if(!r.items)r.items=[];
+    });
+  });
+}
+function saveS(){try{localStorage.setItem('nps_v6',JSON.stringify(S))}catch(e){}}
+function clone(o){return JSON.parse(JSON.stringify(o))}
+
+/* ══════ SCORING ══════ */
+function sv(val,sc){if(val===''||val===null||val===undefined)return 0;const v=sc[String(val)];return v!==undefined?v:0}
+function catRaw(idx,sec){const d=S[idx][sec.key];const w=sec.pw.reduce((a,b)=>a+b,0);return sec.fields.reduce((a,f,i)=>a+sv(d[f.k],f.sc)*sec.pw[i],0)/w}
+function health(idx){
+  const yr=S[idx].years||'';
+  const aw=yr==='< 1 year'?.2:yr==='1-2 years'?.1:0;
+  const sc=1-aw;
+  const dw={impl:aw,im:.3*sc,cs:.2*sc,bau:.3*sc,prod:.1*sc,prog:.1*sc};
+  return SECS.reduce((a,sec)=>a+catRaw(idx,sec)*dw[sec.key],0);
+}
+const cl=v=>v>=8?'g':v>=6?'y':'r';
+const hcol=v=>v>=8?'var(--g)':v>=6?'var(--y)':'var(--r)';
+const outl=v=>v>=8?'Promoter':v>=6?'Passive':'Detractor';
+const f1=v=>typeof v==='number'?v.toFixed(1):String(v||'');
+function fmtD(iso){return iso?new Date(iso).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):''}
+function fmtShort(iso){if(!iso)return'';const d=new Date(iso);return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})}
+function todayISO(){return new Date().toISOString().slice(0,10)}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+/* ══════ REALTIME SCORE UPDATE ══════ */
+function updateScoreRT(){
+  const hs=health(AI);
+  const col=hcol(hs);
+  const pct=Math.min(100,(hs/10)*100);
+  const big=document.getElementById('rt-big');
+  const out=document.getElementById('rt-out');
+  const fill=document.getElementById('rt-fill');
+  const lbl=document.getElementById('rt-lbl');
+  if(big){big.textContent=f1(hs);big.style.color=col}
+  if(out){out.textContent=outl(hs);out.style.color=col}
+  if(fill){fill.style.width=pct+'%';fill.style.background=col}
+  if(lbl)lbl.textContent=f1(hs)+' / 10';
+  SECS.forEach(sec=>{
+    const v=catRaw(AI,sec);
+    const cv=document.getElementById('rt-cat-'+sec.key);
+    const sv2=document.getElementById('rt-sec-'+sec.key);
+    const c=cl(v);
+    if(cv){cv.textContent=f1(v);cv.className='sc-cval '+c}
+    if(sv2){sv2.textContent=f1(v);sv2.className='sec-sc '+c}
+  });
+  const sc=document.getElementById('scard');
+  if(sc){sc.classList.add('pulse');setTimeout(()=>sc.classList.remove('pulse'),400)}
+}
+
+/* ══════ INLINE SPARKLINE HELPER ══════ */
+function sparklineHTML(idx){
+  const hist=S[idx].history;
+  const cur=health(idx);
+  const scores=hist.map(h=>{
+    const snap=h.snap,yr=S[idx].years||'';
+    const aw=yr==='< 1 year'?.2:yr==='1-2 years'?.1:0,sc=1-aw;
+    const dw={impl:aw,im:.3*sc,cs:.2*sc,bau:.3*sc,prod:.1*sc,prog:.1*sc};
+    return SECS.reduce((a,sec)=>{
+      const d=snap[sec.key]||{},w=sec.pw.reduce((x,y)=>x+y,0);
+      return a+sec.fields.reduce((b,f2,fi)=>b+sv(d[f2.k]||'',f2.sc)*sec.pw[fi],0)/w*dw[sec.key];
+    },0);
+  });
+  scores.push(cur);
+  if(scores.length<2)return '';
+  const first=scores[0],last=scores[scores.length-1],diff=last-first;
+  let ac='same',ar='→';
+  if(diff>0.15){ac='up';ar='↑'}else if(diff<-0.15){ac='down';ar='↓'}
+  const bars=scores.slice(-6).map(s=>{
+    const h=Math.max(3,Math.round((s/10)*13));
+    const bc=s>=8?'var(--g)':s>=6?'var(--y)':'var(--r)';
+    return`<div class="sb" style="height:${h}px;background:${bc};opacity:.85" title="${f1(s)}"></div>`;
+  }).join('');
+  return`<div class="spark">${bars}<span class="sa ${ac}">${ar}</span></div>`;
+}
+
+/* ══════ DASHBOARD ══════ */
+
+function renderDash(){
+  const qs=getDisplayQuarters(),prev3=qs.slice(0,3),curQ=qs[3],prevQ=qs[2];
+
+  // Dynamic table header
+  const thead=document.getElementById('dthead');
+  if(thead){
+    thead.innerHTML='<tr>'
+      +'<th class="tl" rowspan="2" style="min-width:148px">Account</th>'
+      +prev3.map(q=>`<th class="tc" rowspan="2">${q.label}</th>`).join('')
+      +`<th class="tc sep-l" rowspan="2">${curQ.label} <span style="font-size:9px;color:var(--blue);font-weight:500">(predicted)</span></th>`
+      +'<th class="tc" rowspan="2">Health Score</th>'
+      +'<th class="tc cat-grp sep-l" colspan="6">Contributors</th>'
+      +'<th class="tl sep-l" rowspan="2" style="min-width:110px">AD / TAM</th>'
+      +'<th class="tc" rowspan="2">Updated</th>'
+      +'</tr><tr>'
+      +'<th class="tc cat-grp sep-l">Impl</th><th class="tc cat-grp">IM</th>'
+      +'<th class="tc cat-grp">CS</th><th class="tc cat-grp">BAU</th>'
+      +'<th class="tc cat-grp">Product</th><th class="tc cat-grp">Program</th>'
+      +'</tr>';
+  }
+  const tbq=document.getElementById('tb-quarter');if(tbq)tbq.textContent=curQ.label;
+
+  const tb=document.getElementById('dtbody'),cl2=document.getElementById('dcards');
+  tb.innerHTML='';cl2.innerHTML='';
+  let ct={g:0,y:0,r:0};
+
+  ACCOUNTS.forEach((acc,i)=>{
+    const hs=health(i),c=cl(hs);ct[c]++;
+    const col=hcol(hs),lbl=outl(hs),pct=Math.min(100,(hs/10)*100);
+    const cats=SECS.map(sec=>catRaw(i,sec)),upd=S[i].lastUpdated;
+    const bdg=v=>v?`<span class="badge ${v.toLowerCase()}">${v}</span>`:`<span class="badge na">—</span>`;
+    const chp=v=>`<span class="chip ${cl(v)}">${f1(v)}</span>`;
+
+    // QoQ arrow: current predicted vs previous quarter
+    const prevActual=acc.scores[prevQ.label]||(S[i]._qscores&&S[i]._qscores[prevQ.label])||'';
+    const pr=outcomeRank(prevActual),cr=outcomeRank(lbl);
+    let qArr='',qCol='';
+    if(pr>=0&&cr>=0){
+      if(cr>pr){qArr='↑';qCol='var(--g)'}
+      else if(cr<pr){qArr='↓';qCol='var(--r)'}
+      else{qArr='→';qCol='var(--ink3)'}
+    }
+    const qoqSpan=qArr?`<span style="font-size:11px;font-weight:700;color:${qCol};margin-left:3px">${qArr}</span>`:'';
+
+    // History-based sparkline arrow
+    const hist=S[i].history;let tArrow='',tColor='';
+    if(hist.length>=2){
+      const psnap=hist[0].snap,yr=S[i].years||'';
+      const aw=yr==='< 1 year'?.2:yr==='1-2 years'?.1:0,sc=1-aw;
+      const dw={impl:aw,im:.3*sc,cs:.2*sc,bau:.3*sc,prod:.1*sc,prog:.1*sc};
+      const prevH=SECS.reduce((a,sec)=>{const d=psnap[sec.key]||{},w=sec.pw.reduce((x,y)=>x+y,0);return a+sec.fields.reduce((b,f2,fi)=>b+sv(d[f2.k]||'',f2.sc)*sec.pw[fi],0)/w*dw[sec.key];},0);
+      const diff=hs-prevH;
+      if(diff>0.15){tArrow='↑';tColor='var(--g)'}else if(diff<-0.15){tArrow='↓';tColor='var(--r)'}else{tArrow='→';tColor='var(--ink3)'}
+    }
+
+    const prevCols=prev3.map(q=>`<td class="tc"><div style="display:flex;align-items:center;justify-content:center">${bdg(acc.scores[q.label]||(S[i]._qscores&&S[i]._qscores[q.label])||'')}</div></td>`).join('');
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><div class="acell"><div style="min-width:0"><div class="aname">${acc.name}</div>${sparklineHTML(i)}</div></div></td>
+      ${prevCols}
+      <td class="tc sep-l"><div style="display:flex;align-items:center;justify-content:center;gap:3px"><span class="badge ${lbl.toLowerCase()}">${lbl}</span>${qoqSpan}</div></td>
+      <td class="tc"><div class="hcell"><span class="hnum" style="color:${col}">${f1(hs)}${tArrow?` <span style="font-size:11px;color:${tColor}">${tArrow}</span>`:''}</span><div class="hbar"><div class="hfill" style="width:${pct}%;background:${col}"></div></div></div></td>
+      ${cats.map((v,ci)=>`<td class="tc${ci===0?' sep-l':''}">${chp(v)}</td>`).join('')}
+      <td class="sep-l"><div class="adname">${acc.ad}</div><div class="adsub">${acc.tam}</div></td>
+      <td class="tc">${upd?`<span class="upd-ts">${fmtD(upd)}</span>`:`<span class="upd-def">Default</span>`}</td>`;
+    tr.onclick=()=>openAcc(i);tb.appendChild(tr);
+
+    const d2=document.createElement('div');d2.className='acard';
+    d2.innerHTML=`
+      <div class="cbody"><div class="cname">${acc.name}</div><div class="cmeta">${acc.ad} · ${acc.tam}</div>
+        <div class="ctags">${bdg(acc.scores[prevQ.label]||'')} <span style="font-size:10px;color:var(--ink3);margin:0 2px">→</span> <span class="badge ${lbl.toLowerCase()}">${lbl}</span>${qoqSpan}</div></div>
+      <div class="cright">
+        <div class="cscore" style="color:${col}">${f1(hs)}${tArrow?`<span style="font-size:12px;color:${tColor};margin-left:3px">${tArrow}</span>`:''}</div>
+        <div class="cmini">${cats.map(v=>`<span class="mc ${cl(v)}">${f1(v)}</span>`).join('')}</div>
+        ${upd?`<div class="upd-ts" style="font-size:9.5px">${fmtD(upd)}</div>`:''}</div>
+      <div class="carr">›</div>`;
+    d2.onclick=()=>openAcc(i);cl2.appendChild(d2);
+  });
+  document.getElementById('pills').innerHTML=`
+    <div class="pill g"><div class="pilldot"></div>${ct.g} Promoter</div>
+    <div class="pill y"><div class="pilldot"></div>${ct.y} Passive</div>
+    <div class="pill r"><div class="pilldot"></div>${ct.r} Detractor</div>
+    <div class="pill n">${ACCOUNTS.length} accounts · ${curQ.label}</div>`;
+}
+
+
+/* ══════ HISTORY SNAPSHOT ══════ */
+function captureSnap(idx){
+  const snap={};
+  SECS.forEach(sec=>{snap[sec.key]={};sec.fields.forEach(f=>{snap[sec.key][f.k]=S[idx][sec.key][f.k]})});
+  return snap;
+}
+function saveWithHistory(){
+  const prev=S[AI].history.length?S[AI].history[S[AI].history.length-1].snap:null;
+  const curr=captureSnap(AI);
+  if(!prev||JSON.stringify(prev)!==JSON.stringify(curr)){
+    S[AI].history.push({ts:new Date().toISOString(),snap:curr});
+    if(S[AI].history.length>12)S[AI].history.shift();
+  }
+  const _cq=getDisplayQuarters()[3];
+  if(!S[AI]._qscores)S[AI]._qscores={};
+  S[AI]._qscores[_cq.label]=outl(health(AI));
+  S[AI].lastUpdated=new Date().toISOString();
+  saveS();
+}
+
+/* ══════ PARAM TRENDLINE (per-account) ══════ */
+function renderParamTrend(){
+  const hist=S[AI].history;
+  const hd=`<div class="ptl-hd"><div class="ptl-ico">📈</div><div class="ptl-ttl" style="flex:1">Parameter Trendline</div><div class="ptl-sub">${hist.length>=2?hist.length+' saves tracked':'Save ≥2 times to see trends'}</div></div>`;
+  if(hist.length<2)return`<div class="ptl-sec">${hd}<div class="ptl-empty">Save this account at least twice to see which parameters changed.</div></div>`;
+  const changed=[];
+  SECS.forEach(sec=>sec.fields.forEach(f=>{
+    const vals=hist.map(h=>h.snap[sec.key]?.[f.k]??'');
+    if(vals.some(v=>v!==vals[0]))changed.push({sec,f,vals,dates:hist.map(h=>h.ts)});
+  }));
+  if(!changed.length)return`<div class="ptl-sec">${hd}<div class="ptl-empty">No parameter changes detected across ${hist.length} saves.</div></div>`;
+  const rows=changed.map(({sec,f,vals,dates})=>{
+    const fs=vals[0]!==''?(f.sc[vals[0]]??null):null;
+    const ls=vals[vals.length-1]!==''?(f.sc[vals[vals.length-1]]??null):null;
+    let arrow='same',ai='→';
+    if(fs!==null&&ls!==null){if(ls>fs){arrow='up';ai='↑'}else if(ls<fs){arrow='down';ai='↓'}}
+    const dots=vals.map((v,di)=>{
+      const vsc=v!==''?(f.sc[v]??null):null;
+      const dc=vsc===null?'n':vsc>=8?'g':vsc>=5?'y':'r';
+      const short=v.length>6?v.slice(0,5)+'…':v;
+      return`<div class="ptl-dw"><div class="ptl-dot ${dc}" title="${esc(v)} (${fmtD(dates[di])})">${v?v[0]:'-'}</div><div class="ptl-dval">${esc(short)||'—'}</div><div class="ptl-date">${fmtShort(dates[di])}</div></div>`;
+    }).join('');
+    return`<div class="ptl-row"><div class="ptl-param"><div>${esc(f.lbl)}</div><div class="ptl-sec-lbl">${esc(sec.label)}</div></div><div class="ptl-dots">${dots}</div><div class="ptl-arrow ${arrow}">${ai}</div></div>`;
+  }).join('');
+  return`<div class="ptl-sec">${hd}<div>${rows}</div></div>`;
+}
+
+/* ══════ REVIEW NOTES + ACTION ITEMS ══════ */
+function dueStatus(due,status){
+  if(status==='done')return'ok';
+  if(!due)return'ok';
+  const today=new Date();today.setHours(0,0,0,0);
+  const d=new Date(due);d.setHours(0,0,0,0);
+  const diff=Math.round((d-today)/86400000);
+  return diff<0?'overdue':diff<=3?'soon':'ok';
+}
+function sessStats(sess){
+  const items=sess.items||[];
+  return{
+    pending:items.filter(it=>it.status==='pending').length,
+    delayed:items.filter(it=>it.status==='delayed').length,
+    done:items.filter(it=>it.status==='done').length,
+    total:items.length
+  };
+}
+function tabBadge(sess){
+  const st=sessStats(sess);
+  if(st.delayed>0)return`<span class="stab-bdg overdue">${st.delayed}</span>`;
+  if(st.pending>0)return`<span class="stab-bdg open">${st.pending}</span>`;
+  if(st.total>0&&st.done===st.total)return`<span class="stab-bdg done">✓</span>`;
+  return'';
+}
+
+function renderReviews(){
+  const reviews=S[AI].reviews||[];
+  const allOD=reviews.flatMap(r=>(r.items||[]).filter(it=>it.status!=='done'&&dueStatus(it.due,it.status)==='overdue'));
+  let actIdx=activeTab[AI]??reviews.length-1;
+  if(actIdx>=reviews.length)actIdx=reviews.length-1;
+
+  let h=`<div class="rev-sec">
+    <div class="rev-hd">
+      <div class="rev-ico">📋</div>
+      <div class="rev-info">
+        <div class="rev-ttl">Fortnightly Reviews &amp; Action Items</div>
+        <div class="rev-sub">Pre-call notes · Action items with owners &amp; deadlines · ${reviews.length} sessions</div>
+      </div>
+      <div class="rev-hd-r"><button class="btn btn-primary btn-sm" onclick="addNewSession()">+ Session</button></div>
+    </div>`;
+
+  if(allOD.length>0)h+=`<div class="overdue-alert">⚠️ ${allOD.length} overdue action item${allOD.length!==1?'s':''} across sessions</div>`;
+
+  // Show last 4 sessions as tabs — newest first (left to right)
+  const tabSlice=reviews.slice(-4);
+  const offset=reviews.length-tabSlice.length;
+  const tabSliceReversed=[...tabSlice].reverse();
+  h+=`<div class="stabs">`;
+  tabSliceReversed.forEach((sess,ti)=>{
+    const ri=offset+(tabSlice.length-1-ti);
+    h+=`<div class="stab${ri===actIdx?' active':''}" onclick="switchTab(${ri})">${esc(sess.title)}${tabBadge(sess)}</div>`;
+  });
+  h+=`</div>`;
+
+  reviews.forEach((sess,ri)=>{
+    h+=`<div class="spanel${ri===actIdx?' active':''}" id="sp-${AI}-${ri}">${renderPanel(AI,ri,sess)}</div>`;
+  });
+
+  h+=`</div>`;
+  return h;
+}
+
+function renderPanel(accIdx,ri,sess){
+  const siid=`${accIdx}-${ri}`;
+  let h='';
+
+  /* NOTES */
+  const notesCats=[
+    {key:'update', emoji:'🟡', label:'Updates',  placeholder:'What changed or is in progress since last review?'},
+    {key:'win',    emoji:'🟢', label:'Wins',     placeholder:'What went well? Milestones, positive signals…'},
+    {key:'risk',   emoji:'🔴', label:'Risks',   placeholder:'What risks or blockers should the team know about?'},
+  ];
+  // default active cat stored per session
+  const activeCat=sess._activeCat||'update';
+  const catCounts=notesCats.map(c=>((sess.notes||{})[c.key]||[]).filter(n=>n.trim()).length);
+
+  h+=`<div class="notes-sub">
+    <div class="notes-hdr">
+      <div class="notes-hdr-left">
+        <span class="notes-hdr-icon">📝</span>
+        <span class="notes-hdr-title">Pre-Call Notes</span>
+      </div>
+      <span class="notes-hdr-session">${esc(sess.title)}</span>
+    </div>
+    <div class="notes-cats">`;
+
+  notesCats.forEach((c,ci)=>{
+    const cnt=catCounts[ci];
+    const isActive=activeCat===c.key;
+    h+=`<button class="ncat-btn ${c.key}${isActive?' active':''}" onclick="switchNoteCat(${accIdx},${ri},'${c.key}')">
+      <span class="ncat-emoji">${c.emoji}</span>
+      <span class="ncat-label">${c.label}</span>
+      ${cnt>0?`<span class="ncat-count">${cnt}</span>`:''}
+    </button>`;
+  });
+
+  h+=`</div>`; // end .notes-cats
+
+  // Render each panel
+  notesCats.forEach(c=>{
+    const bullets=(sess.notes||{})[c.key]||[];
+    const isActive=activeCat===c.key;
+    h+=`<div class="notes-panel ${c.key}${isActive?' active':''}" id="np-${siid}-${c.key}">`;
+    if(bullets.length===0){
+      h+=`<div class="notes-empty"><div class="notes-empty-icon">${c.emoji}</div><div class="notes-empty-txt">No ${c.label.toLowerCase()} noted yet</div></div>`;
+    } else {
+      h+=`<div class="nblist">`;
+      bullets.forEach((b,bi)=>{
+        h+=`<div class="nbrow"><div class="nbdot"></div><textarea class="nbinp" rows="1" placeholder="${c.placeholder}" oninput="updateNote(${accIdx},${ri},'${c.key}',${bi},this.value);autoH(this)">${esc(b)}</textarea><button class="nbdel" onclick="delBullet(${accIdx},${ri},'${c.key}',${bi})" title="Remove">✕</button></div>`;
+      });
+      h+=`</div>`;
+    }
+    h+=`<button class="add-note-btn" onclick="addBullet(${accIdx},${ri},'${c.key}')">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Add ${c.label.slice(0,-1).toLowerCase()} note
+    </button>
+    </div>`; // end .notes-panel
+  });
+
+  h+=`</div>`; // end notes-sub
+
+  /* ACTION ITEMS */
+  const items=sess.items||[];
+  const st=sessStats(sess);
+  h+=`<div class="ai-sub">
+    <div class="ai-sub-hd">
+      <div class="ai-sub-ttl">Action Items from Call</div>
+      <div class="ai-stats">
+        ${st.pending>0?`<span class="aisp pending">${st.pending} Pending</span>`:''}
+        ${st.delayed>0?`<span class="aisp delayed">${st.delayed} Delayed</span>`:''}
+        ${st.done>0?`<span class="aisp done">${st.done} Done</span>`:''}
+      </div>
+    </div>`;
+
+  if(items.length>0){
+    h+=`<div class="ai-wrap"><table class="ait"><thead><tr>
+      <th style="width:24px">#</th><th>Action Item</th>
+      <th style="min-width:105px">Owner</th><th style="min-width:92px">Due</th>
+      <th style="width:70px">Priority</th><th class="tc" style="min-width:100px">Status</th>
+      <th style="width:30px"></th>
+    </tr></thead><tbody>`;
+    items.forEach((it,ii)=>{
+      const ds=dueStatus(it.due,it.status);
+      const ini=(it.owner||'?').split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
+      const sc=it.status||'pending';
+      const slabel=sc==='done'?'✓ Done':sc==='delayed'?'⚠ Delayed':'● Pending';
+      const prikey=it.priority==='High'?'high':it.priority==='Med'?'med':'low';
+      h+=`<tr>
+        <td><div class="ai-num">${ii+1}</div></td>
+        <td><div class="ai-task${sc==='done'?' done':''}">${esc(it.task)}</div></td>
+        <td><div class="ai-ow"><div class="ai-av">${ini}</div><div class="ai-oname">${esc(it.owner||'—')}</div></div></td>
+        <td><div class="ai-due ${ds}">${it.due?fmtD(it.due):'—'}</div></td>
+        <td><div class="ai-pri"><span class="ai-pd ${prikey}"></span>${it.priority||'—'}</div></td>
+        <td class="tc"><button class="ai-status ${sc}" onclick="cycleStatus(${accIdx},${ri},${ii})">${slabel}</button></td>
+        <td><button class="ai-del" onclick="delItem(${accIdx},${ri},${ii})">✕</button></td>
+      </tr>`;
+    });
+    h+=`</tbody></table></div>`;
+  } else {
+    h+=`<div class="no-ai">No action items yet. Add one below.</div>`;
+  }
+
+  h+=`<div class="ai-add">
+    <div class="aif"><div class="aifl">Action Item</div><input class="aiin task" id="nit-${siid}" placeholder="Describe the action…" /></div>
+    <div class="aif"><div class="aifl">Owner</div><input class="aiin owner" id="nio-${siid}" placeholder="Name" /></div>
+    <div class="aif"><div class="aifl">Due</div><input type="date" class="aiin due" id="nid-${siid}" /></div>
+    <div class="aif"><div class="aifl">Priority</div><select class="aisel" id="nip-${siid}"><option value="High">High</option><option value="Med" selected>Med</option><option value="Low">Low</option></select></div>
+    <div class="aif" style="justify-content:flex-end"><button class="btn btn-primary btn-sm" onclick="addItem(${accIdx},${ri})">Add</button></div>
+  </div></div>`; // end ai-sub
+
+  return h;
+}
+
+/* ══════ NOTES INTERACTIONS ══════ */
+function switchNoteCat(accIdx,ri,cat){
+  // Store active cat on session
+  S[accIdx].reviews[ri]._activeCat=cat;
+  saveS();
+  // Update buttons
+  document.querySelectorAll(`[id^="np-${accIdx}-${ri}-"]`).forEach(()=>{});
+  // Re-render just this panel for clean state
+  refreshPanel(accIdx,ri);
+}
+function addBullet(accIdx,ri,cat){
+  S[accIdx].reviews[ri].notes[cat].push('');saveS();refreshPanel(accIdx,ri);
+}
+function updateNote(accIdx,ri,cat,bi,val){S[accIdx].reviews[ri].notes[cat][bi]=val;saveS()}
+function delBullet(accIdx,ri,cat,bi){S[accIdx].reviews[ri].notes[cat].splice(bi,1);saveS();refreshPanel(accIdx,ri)}
+function autoH(ta){ta.style.height='auto';ta.style.height=ta.scrollHeight+'px'}
+
+/* ══════ ACTION ITEM INTERACTIONS ══════ */
+function cycleStatus(accIdx,ri,ii){
+  const cycle={pending:'delayed',delayed:'done',done:'pending'};
+  const it=S[accIdx].reviews[ri].items[ii];
+  it.status=cycle[it.status||'pending'];
+  saveS();refreshPanel(accIdx,ri);refreshTabBadge(accIdx,ri);
+  toast(it.status==='done'?'Marked done':it.status==='delayed'?'Marked delayed':'Reopened','ok');
+}
+function delItem(accIdx,ri,ii){
+  if(!confirm('Delete this action item?'))return;
+  S[accIdx].reviews[ri].items.splice(ii,1);saveS();refreshPanel(accIdx,ri);refreshTabBadge(accIdx,ri);toast('Deleted','ok');
+}
+function addItem(accIdx,ri){
+  const siid=`${accIdx}-${ri}`;
+  const task=document.getElementById(`nit-${siid}`)?.value?.trim();
+  const owner=document.getElementById(`nio-${siid}`)?.value?.trim();
+  const due=document.getElementById(`nid-${siid}`)?.value;
+  const pri=document.getElementById(`nip-${siid}`)?.value||'Med';
+  if(!task){toast('Enter an action item','err');return}
+  S[accIdx].reviews[ri].items.push({task,owner:owner||'',due:due||'',priority:pri,status:'pending'});
+  saveS();refreshPanel(accIdx,ri);refreshTabBadge(accIdx,ri);toast('Action item added','ok');
+}
+function addNewSession(){
+  const now=new Date();
+  const mon=MONTHS[now.getMonth()];const yr=String(now.getFullYear()).slice(2);
+  const num=now.getDate()<=14?1:2;
+  const title=`Fortnightly Review ${num} – ${mon}'${yr}`;
+  S[AI].reviews.push({title,date:todayISO(),notes:{risk:[],update:[],win:[]},items:[]});
+  activeTab[AI]=S[AI].reviews.length-1;saveS();
+  renderSecs(); // full re-render to show new tab
+  toast('New session added','ok');
+}
+function switchTab(ri){activeTab[AI]=ri;renderSecs()}
+function refreshPanel(accIdx,ri){
+  const el=document.getElementById(`sp-${accIdx}-${ri}`);
+  if(el){el.innerHTML=renderPanel(accIdx,ri,S[accIdx].reviews[ri]);setTimeout(()=>document.querySelectorAll('.binp,.nbinp').forEach(autoH),15)}
+}
+function refreshTabBadge(accIdx,ri){
+  const el=document.querySelector(`.stab:nth-child(${ri+1})`);
+  if(el){const sess=S[accIdx].reviews[ri];el.innerHTML=esc(sess.title)+tabBadge(sess)}
+}
+
+/* ══════ INPUT FORM ══════ */
+function openAcc(i){AI=i;showInput();renderForm();window.scrollTo({top:0,behavior:'instant'})}
+function renderForm(){renderScard();renderSecs()}
+
+function renderScard(){
+  const acc=ACCOUNTS[AI];const d=S[AI];
+  const hs=health(AI);const col=hcol(hs);const pct=Math.min(100,(hs/10)*100);
+  const upd=d.lastUpdated;
+  const cats=SECS.map(sec=>{
+    const v=catRaw(AI,sec);
+    return`<div class="sc-cat"><div class="sc-clbl">${sec.short}</div><div class="sc-cval ${cl(v)}" id="rt-cat-${sec.key}">${f1(v)}</div></div>`;
+  }).join('');
+  document.getElementById('scard').innerHTML=`
+    <div class="sc-hd">
+      <div class="sc-name">${acc.name}</div>
+      <div class="sc-tags">
+        <span class="sc-tag">AD: ${acc.ad}</span><span class="sc-tag">TAM: ${acc.tam}</span>
+        ${upd?`<span class="sc-tag hi">Saved ${fmtD(upd)}</span>`:`<span class="sc-tag" style="font-style:italic;color:var(--ink3)">Pre-populated</span>`}
+      </div>
+    </div>
+    <div class="sc-main">
+      <div class="sc-score">
+        <div class="sc-lbl">Health Score</div>
+        <div class="sc-big" id="rt-big" style="color:${col}">${f1(hs)}</div>
+        <div class="sc-out" id="rt-out" style="color:${col}">${outl(hs)}</div>
+      </div>
+      <div class="sc-bar">
+        <div class="sc-barlbl" id="rt-lbl">${f1(hs)} / 10</div>
+        <div class="sc-track"><div class="sc-fill" id="rt-fill" style="width:${pct}%;background:${col}"></div></div>
+        <div class="sc-ticks"><span>0</span><span>5</span><span>10</span></div>
+      </div>
+    </div>
+    <div class="sc-cats">${cats}</div>`;
+}
+
+function renderSecs(){
+  const d=S[AI];const acc=ACCOUNTS[AI];
+  let h=`<div class="sec"><div class="sec-hd" style="background:#f7f8fc"><div class="sec-ico" style="background:var(--blue-bg)">🏢</div><div class="sec-ttl">Account Details</div></div>
+    <div class="fgrid">
+      <div class="field"><div class="flbl">Years with Capillary</div>
+        <select class="fsel" onchange="setF(${AI},'years',null,this.value)">
+          ${['','< 1 year','1-2 years','> 2 years'].map(o=>`<option value="${o}"${(d.years||'')===o?' selected':''}>${o||'Select…'}</option>`).join('')}
+        </select></div>
+      <div class="field"><div class="flbl">Size of Account</div>
+        <select class="fsel" onchange="setF(${AI},'size',null,this.value)">
+          ${['','Small','Medium','Large','Enterprise'].map(o=>`<option value="${o}"${(d.size||'')===o?' selected':''}>${o||'Select…'}</option>`).join('')}
+        </select></div>
+      <div class="field"><div class="flbl">AMJ'25</div><div class="fro">${acc.amj||'—'}</div></div>
+      <div class="field"><div class="flbl">JAS'25</div><div class="fro">${acc.jas||'—'}</div></div>
+      <div class="field"><div class="flbl">OND'25</div><div class="fro">${acc.ond||'—'}</div></div>
+    </div></div>`;
+
+  SECS.forEach(sec=>{
+    const sv2=catRaw(AI,sec);
+    h+=`<div class="sec"><div class="sec-hd" style="background:${sec.bg}">
+      <div class="sec-ico" style="background:${sec.bg};filter:brightness(.93)">${sec.ico}</div>
+      <div class="sec-ttl">${sec.label}</div>
+      <div class="sec-sc ${cl(sv2)}" id="rt-sec-${sec.key}">${f1(sv2)}</div>
+    </div><div class="fgrid">
+      ${sec.fields.map(f=>{
+        const val=d[sec.key][f.k]??'';
+        const sv3=val!==''?f.sc[val]:undefined;
+        const sc2=sv3===undefined?'':sv3>=8?'sg':sv3>=5?'sy':'sr';
+        return`<div class="field"><div class="flbl">${f.lbl}</div>
+          <select class="fsel ${sc2}" onchange="setF(${AI},'${sec.key}','${f.k}',this.value);this.className='fsel '+scl(${JSON.stringify(f.sc)},this.value)">
+            <option value="">Select…</option>
+            ${f.opts.map(o=>`<option value="${o}"${val===o?' selected':''}>${o}</option>`).join('')}
+          </select></div>`;
+      }).join('')}
+    </div></div>`;
+  });
+
+  h+=renderParamTrend();
+  h+=renderReviews();
+  document.getElementById('swrap').innerHTML=h;
+  setTimeout(()=>document.querySelectorAll('.binp,.nbinp').forEach(autoH),20);
+}
+
+function scl(sc,val){if(!val)return'';const v=sc[val];return v===undefined?'':v>=8?'sg':v>=5?'sy':'sr'}
+function setF(i,sec,fld,val){
+  if(fld===null)S[i][sec]=val;else S[i][sec][fld]=val;
+  updateScoreRT();
+}
+function saveReturn(){
+  saveWithHistory();showOverlay();
+  setTimeout(async()=>{renderDash();hideOverlay();showDash();toast('Saved · Dashboard updated','ok');await syncToSheets(true);},400);
+}
+function resetAcc(){
+  if(!confirm(`Reset ${ACCOUNTS[AI].name} to defaults?`))return;
+  const reviews=S[AI].reviews,history=S[AI].history;
+  S[AI]=clone(DEFS[AI]);S[AI].lastUpdated=null;S[AI].reviews=reviews;S[AI].history=history;
+  renderForm();toast('Reset to defaults (reviews & history kept)','ok');
+}
+
+/* ══════ EXCEL EXPORT (5 sheets) ══════ */
+async function exportExcel(){
+  if(typeof XLSX==='undefined'){toast('Loading XLSX…','ok');await loadXLSX()}
+  showOverlay();
+  setTimeout(()=>{
+    try{
+      const wb=XLSX.utils.book_new();
+      // 1. Dashboard
+      const _xqs=getDisplayQuarters();const dR=[['Account',..._xqs.slice(0,3).map(q=>q.label),_xqs[3].label+' (Predicted)','Account Health','Implementation','Incidence Management','Customer Success','BAU Operations','Product Adoption','Program Efficiency','AD','TAM','Last Updated']];
+      ACCOUNTS.forEach((acc,i)=>{
+        const hs=health(i);const cats=SECS.map(sec=>parseFloat(f1(catRaw(i,sec))));
+        const _ep=_xqs.slice(0,3).map(q=>acc.scores[q.label]||(S[i]._qscores&&S[i]._qscores[q.label])||'');dR.push([acc.name,..._ep,outl(hs),parseFloat(f1(hs)),...cats,acc.ad,acc.tam,S[i].lastUpdated?fmtD(S[i].lastUpdated):'Default']);
+      });
+      XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(dR),"NPS Dashboard - JFM'26");
+      // 2-3. Input + Output
+      const iH1=['Account Name','Size of Account','Years with Capillary','Implementation','','','','','Incidence Management','','','','','','Customer Success','','','','','','','BAU Operations','','','','','Product Adoption','','','','','Program Efficiency','','','',''];
+      const iH2=['','','','BRD Imp gaps','Go-Live/ Milestones','Post Go-Live items','Complexity of solution','IMP NPS','P0','P1','Overall Tickets Trend','Quality of Analysis','Process Adherence','SLA Breach/ Res time','Client coverage','Client - Change in POC','CAP - Change in AD/TAM','Driving Business Goals','QBR in last quarter','Sponsor in the account','Leadership quarterly touchbase','Prev Quarter NPS','Weekly Cadence','Quarterly NPS touchbase','Proactive Alerts','Open SR/CR','Loyalty+','Engage+','Insights+','Rewards+','Dependency in Client Ecosystem','Program Rules','Critical configs','Promotions efficiency','Process Adherence','Expiry - Tier/ Points'];
+      const iR=[iH1,iH2],oR=[iH1,iH2];
+      ACCOUNTS.forEach((acc,i)=>{
+        const d=S[i];
+        iR.push([acc.name,d.size||'',d.years||'',d.impl.brd,d.impl.golive,d.impl.postgolive,d.impl.complexity,d.impl.impnps,d.im.p0,d.im.p1,d.im.tickets,d.im.quality,d.im.process,d.im.sla,d.cs.coverage,d.cs.poc,d.cs.adtam,d.cs.bizgoals,d.cs.qbr,d.cs.sponsor,d.cs.leadership,d.bau.prevnps,d.bau.cadence,d.bau.qnps,d.bau.proactive,d.bau.opensr,d.prod.loyalty,d.prod.engage,d.prod.insights,d.prod.rewards,d.prod.dependency,d.prog.rules,d.prog.configs,d.prog.promos,d.prog.procadh,d.prog.expiry]);
+        const sfn=(v,sc2)=>v?(sc2[String(v)]??0):0;
+        const[S0,S1,S2,S3,S4,S5]=SECS;
+        oR.push([acc.name,d.size||'',d.years||'',sfn(d.impl.brd,S0.fields[0].sc),sfn(d.impl.golive,S0.fields[1].sc),sfn(d.impl.postgolive,S0.fields[2].sc),sfn(d.impl.complexity,S0.fields[3].sc),sfn(d.impl.impnps,S0.fields[4].sc),sfn(d.im.p0,S1.fields[0].sc),sfn(d.im.p1,S1.fields[1].sc),sfn(d.im.tickets,S1.fields[2].sc),sfn(d.im.quality,S1.fields[3].sc),sfn(d.im.process,S1.fields[4].sc),sfn(d.im.sla,S1.fields[5].sc),sfn(d.cs.coverage,S2.fields[0].sc),sfn(d.cs.poc,S2.fields[1].sc),sfn(d.cs.adtam,S2.fields[2].sc),sfn(d.cs.bizgoals,S2.fields[3].sc),sfn(d.cs.qbr,S2.fields[4].sc),sfn(d.cs.sponsor,S2.fields[5].sc),sfn(d.cs.leadership,S2.fields[6].sc),sfn(d.bau.prevnps,S3.fields[0].sc),sfn(d.bau.cadence,S3.fields[1].sc),sfn(d.bau.qnps,S3.fields[2].sc),sfn(d.bau.proactive,S3.fields[3].sc),sfn(d.bau.opensr,S3.fields[4].sc),sfn(d.prod.loyalty,S4.fields[0].sc),sfn(d.prod.engage,S4.fields[1].sc),sfn(d.prod.insights,S4.fields[2].sc),sfn(d.prod.rewards,S4.fields[3].sc),sfn(d.prod.dependency,S4.fields[4].sc),sfn(d.prog.rules,S5.fields[0].sc),sfn(d.prog.configs,S5.fields[1].sc),sfn(d.prog.promos,S5.fields[2].sc),sfn(d.prog.procadh,S5.fields[3].sc),sfn(d.prog.expiry,S5.fields[4].sc)]);
+      });
+      XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(iR),'Input sheet');
+      XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(oR),'Output sheet');
+      // 4. Review Notes
+      const nR=[['Account','Session','Session Date','Category','Note']];
+      ACCOUNTS.forEach((acc,i)=>{
+        (S[i].reviews||[]).forEach(sess=>{
+          ['risk','update','win'].forEach(cat=>{
+            ((sess.notes||{})[cat]||[]).filter(n=>n.trim()).forEach(n=>{
+              nR.push([acc.name,sess.title,sess.date,cat.charAt(0).toUpperCase()+cat.slice(1),n]);
+            });
+          });
+        });
+      });
+      XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(nR),'Review Notes');
+      // 5. Action Items
+      const aiR=[['Account','Session','Session Date','#','Action Item','Owner','Due Date','Priority','Status']];
+      ACCOUNTS.forEach((acc,i)=>{
+        (S[i].reviews||[]).forEach(sess=>{
+          (sess.items||[]).forEach((it,ii)=>{
+            aiR.push([acc.name,sess.title,sess.date,ii+1,it.task,it.owner||'',it.due?fmtD(it.due):'',it.priority||'',it.status==='done'?'Done':it.status==='delayed'?'Delayed':'Pending']);
+          });
+        });
+      });
+      XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(aiR),'Action Items');
+      XLSX.writeFile(wb,`NPS_JFM26_${todayISO()}.xlsx`);
+      hideOverlay();toast('Excel exported (5 sheets)','ok');
+    }catch(e){hideOverlay();toast('Export failed: '+e.message,'err')}
+  },400);
+}
+function loadXLSX(){
+  return new Promise((res,rej)=>{
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload=res;s.onerror=rej;document.head.appendChild(s);
+  });
+}
+
+/* ══════ NAV & UTILS ══════ */
+function showDash(){document.getElementById('vdash').classList.add('active');document.getElementById('vinput').classList.remove('active');window.scrollTo({top:0,behavior:'smooth'})}
+function showInput(){document.getElementById('vinput').classList.add('active');document.getElementById('vdash').classList.remove('active')}
+function showOverlay(){document.getElementById('overlay').classList.add('show')}
+function hideOverlay(){document.getElementById('overlay').classList.remove('show')}
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');t.className=`toast ${type}`;
+  t.querySelector('.ti').textContent=type==='ok'?'✓':'✕';
+  document.getElementById('tmsg').textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+
+/* GOOGLE SHEETS SYNC */
+const APPS_SCRIPT_URL = ""; // paste your Apps Script Web App URL here
+
+function buildExportData(){
+  const dashHdr=["Account","AMJ'25","JAS'25","OND'25","JFM'26 (Predicted)","Account Health","Implementation","Incidence Management","Customer Success","BAU Operations","Product Adoption","Program Efficiency","AD","TAM","Last Updated"];
+  const dashRows=[dashHdr];
+  ACCOUNTS.forEach((acc,i)=>{
+    const hs=health(i);const cats=SECS.map(sec=>parseFloat(f1(catRaw(i,sec))));
+    dashRows.push([acc.name,acc.amj||"",acc.jas||"",acc.ond||"",outl(hs),parseFloat(f1(hs)),...cats,acc.ad,acc.tam,S[i].lastUpdated?fmtD(S[i].lastUpdated):"Default"]);
+  });
+  const noteRows=[["Account","Session","Date","Category","Note"]];
+  ACCOUNTS.forEach((acc,i)=>{(S[i].reviews||[]).forEach(sess=>{["risk","update","positive"].forEach(cat=>{((sess.notes||{})[cat]||[]).filter(n=>n.trim()).forEach(n=>{noteRows.push([acc.name,sess.title,sess.date,cat,n])})})})});
+  const actionRows=[["Account","Session","Date","#","Action Item","Owner","Due","Priority","Status"]];
+  ACCOUNTS.forEach((acc,i)=>{(S[i].reviews||[]).forEach(sess=>{(sess.items||[]).forEach((it,ii)=>{actionRows.push([acc.name,sess.title,sess.date,ii+1,it.task,it.owner||"",it.due?fmtD(it.due):"",it.priority||"",it.status==="done"?"Done":it.status==="delayed"?"Delayed":"Pending"])})})});
+  return{dashRows,noteRows,actionRows};
+}
+
+async function syncToSheets(silent){
+  if(!APPS_SCRIPT_URL){if(!silent)toast("Add Apps Script URL to enable Sheets sync","err");return;}
+  const{dashRows,noteRows,actionRows}=buildExportData();
+  try{
+    await Promise.all([
+      {type:"dashboard",rows:dashRows},
+      {type:"notes",rows:noteRows},
+      {type:"actions",rows:actionRows}
+    ].map(p=>fetch(APPS_SCRIPT_URL,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(p)}).then(r=>r.json())));
+    if(!silent)toast("Google Sheets synced","ok");
+  }catch(e){if(!silent)toast("Sheets sync failed","err");console.warn(e);}
+}
+
+loadS();loadXLSX().catch(()=>{});renderDash();
+</script>
+</body>
+</html>
